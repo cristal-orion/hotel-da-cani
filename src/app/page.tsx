@@ -1,4 +1,5 @@
 import { draftMode } from "next/headers";
+import VisualEditor from "./components/VisualEditor";
 
 const DIRECTUS_URL = process.env.DIRECTUS_URL || "http://57.128.243.135:8055";
 
@@ -40,6 +41,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-amber-50">
+      <VisualEditor />
       {isDraft && (
         <div className="bg-yellow-400 text-yellow-900 text-center py-2 text-sm font-semibold">
           PREVIEW MODE —{" "}
@@ -51,10 +53,16 @@ export default async function Home() {
       {/* Header */}
       <header className="bg-amber-800 text-white py-8">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="text-5xl font-bold">
+          <h1
+            className="text-5xl font-bold"
+            data-directus="collection:hotel_info;field:name"
+          >
             {hotelInfo?.name || "Hotel da Cani"}
           </h1>
-          <p className="text-xl mt-3 text-amber-200">
+          <p
+            className="text-xl mt-3 text-amber-200"
+            data-directus="collection:hotel_info;field:tagline"
+          >
             {hotelInfo?.tagline ||
               "Il miglior soggiorno per il tuo amico a 4 zampe"}
           </p>
@@ -106,16 +114,20 @@ export default async function Home() {
           </h2>
           {posts.length > 0 ? (
             <div className="space-y-6">
-              {posts.map((post: { id: string; title: string; content: string }) => (
+              {posts.map((post: { id: number; title: string; content: string }) => (
                 <article
                   key={post.id}
                   className="border-l-4 border-amber-500 pl-6 py-2"
                 >
-                  <h3 className="text-xl font-semibold text-gray-800">
+                  <h3
+                    className="text-xl font-semibold text-gray-800"
+                    data-directus={`collection:blog_posts;item:${post.id};field:title`}
+                  >
                     {post.title}
                   </h3>
                   <div
                     className="text-gray-600 mt-1 line-clamp-2"
+                    data-directus={`collection:blog_posts;item:${post.id};field:content`}
                     dangerouslySetInnerHTML={{ __html: post.content }}
                   />
                 </article>
