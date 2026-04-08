@@ -19,7 +19,7 @@ async function getHotelInfo(isDraft: boolean) {
 async function getBlogPosts(isDraft: boolean) {
   try {
     const res = await fetch(
-      `${DIRECTUS_URL}/items/blog_posts?sort=-date_created&limit=10`,
+      `${DIRECTUS_URL}/items/blog_posts?limit=10`,
       {
         cache: isDraft ? "no-store" : undefined,
         next: isDraft ? undefined : { revalidate: 60 },
@@ -106,7 +106,7 @@ export default async function Home() {
           </h2>
           {posts.length > 0 ? (
             <div className="space-y-6">
-              {posts.map((post: { id: string; title: string; content: string; date_created: string }) => (
+              {posts.map((post: { id: string; title: string; content: string }) => (
                 <article
                   key={post.id}
                   className="border-l-4 border-amber-500 pl-6 py-2"
@@ -114,12 +114,10 @@ export default async function Home() {
                   <h3 className="text-xl font-semibold text-gray-800">
                     {post.title}
                   </h3>
-                  <p className="text-gray-600 mt-1 line-clamp-2">
-                    {post.content}
-                  </p>
-                  <span className="text-sm text-gray-400">
-                    {new Date(post.date_created).toLocaleDateString("it-IT")}
-                  </span>
+                  <div
+                    className="text-gray-600 mt-1 line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
                 </article>
               ))}
             </div>
