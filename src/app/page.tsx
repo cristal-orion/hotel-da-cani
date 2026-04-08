@@ -1,9 +1,12 @@
+import { draftMode } from "next/headers";
+
 const DIRECTUS_URL = process.env.DIRECTUS_URL || "http://57.128.243.135:8055";
 
-async function getHotelInfo() {
+async function getHotelInfo(isDraft: boolean) {
   try {
     const res = await fetch(`${DIRECTUS_URL}/items/hotel_info`, {
-      next: { revalidate: 60 },
+      cache: isDraft ? "no-store" : undefined,
+      next: isDraft ? undefined : { revalidate: 60 },
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -13,11 +16,14 @@ async function getHotelInfo() {
   }
 }
 
-async function getBlogPosts() {
+async function getBlogPosts(isDraft: boolean) {
   try {
     const res = await fetch(
       `${DIRECTUS_URL}/items/blog_posts?sort=-date_created&limit=10`,
-      { next: { revalidate: 60 } }
+      {
+        cache: isDraft ? "no-store" : undefined,
+        next: isDraft ? undefined : { revalidate: 60 },
+      }
     );
     if (!res.ok) return [];
     const json = await res.json();
@@ -28,11 +34,20 @@ async function getBlogPosts() {
 }
 
 export default async function Home() {
-  const hotelInfo = await getHotelInfo();
-  const posts = await getBlogPosts();
+  const { isEnabled: isDraft } = await draftMode();
+  const hotelInfo = await getHotelInfo(isDraft);
+  const posts = await getBlogPosts(isDraft);
 
   return (
     <div className="min-h-screen bg-amber-50">
+      {isDraft && (
+        <div className="bg-yellow-400 text-yellow-900 text-center py-2 text-sm font-semibold">
+          PREVIEW MODE —{" "}
+          <a href="/api/draft/disable" className="underline">
+            Esci dalla preview
+          </a>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-amber-800 text-white py-8">
         <div className="max-w-4xl mx-auto px-6 text-center">
